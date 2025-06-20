@@ -1,0 +1,454 @@
+
+// import React, { useContext, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import {
+//   Box,
+//   Typography,
+//   List,
+//   ListItem,
+//   Paper,
+//   TextField,
+// } from "@mui/material";
+// import Navbar from "./Navbar";
+// import { AllDataContext } from "../context/AllDataContext";
+
+// const StoryBookList = () => {
+//   const { storyBooks } = useContext(AllDataContext);
+//   const navigate = useNavigate();
+//   const [searchQuery, setSearchQuery] = useState("");
+
+//   // Filter the books based on the search query
+//   const filteredBooks =
+//     storyBooks
+//       ?.filter(
+//         (book) =>
+//           book.Bookname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//           book.Author.toLowerCase().includes(searchQuery.toLowerCase())
+//       )
+//       .sort((a, b) => {
+//         const aMatches =
+//           a.Bookname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//           a.Author.toLowerCase().includes(searchQuery.toLowerCase());
+//         const bMatches =
+//           b.Bookname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//           b.Author.toLowerCase().includes(searchQuery.toLowerCase());
+
+//         if (aMatches && !bMatches) return -1;
+//         if (!aMatches && bMatches) return 1;
+//         return 0;
+//       }) || [];
+
+//   return (
+//     <div style={{ backgroundColor: "#f2f6fa", minHeight: "100vh" }}>
+//       <Navbar />
+//       <Box
+//         sx={{
+//           padding: { xs: "20px", md: "40px" },
+//           maxWidth: "900px",
+//           margin: "0 auto",
+//         }}
+//       >
+//         <Typography
+//           variant="h4"
+//           align="center"
+//           sx={{
+//             color: "#003366",
+//             fontWeight: "bold",
+//             mb: 4,
+//             mt: 9,
+//           }}
+//         >
+//             Non Academic Books
+//         </Typography>
+
+//         <Typography
+//           variant="h6"
+//           align="center"
+//           sx={{
+//             backgroundColor: "#cce0ff",
+//             padding: "10px",
+//             borderRadius: "8px",
+//             mb: 3,
+//             color: "#003366",
+//           }}
+//         >
+//           Total Books: {filteredBooks.length}
+//         </Typography>
+
+//         <TextField
+//           label="Search Books"
+//           variant="outlined"
+//           fullWidth
+//           value={searchQuery}
+//           onChange={(e) => setSearchQuery(e.target.value)}
+//           sx={{
+//             marginBottom: "30px",
+//             backgroundColor: "white",
+//             borderRadius: "5px",
+//           }}
+//         />
+
+//         <List sx={{ padding: 0 }}>
+//           {filteredBooks.length > 0 ? (
+//             filteredBooks.map((book) => {
+//               console.log(book); // For debugging, log the book object to inspect its properties
+
+//               return (
+//                 <ListItem
+//                   key={book._id} // Use _id as key for uniqueness in the list
+//                   component={Paper}
+//                   sx={{
+//                     padding: "15px",
+//                     marginBottom: "15px",
+//                     backgroundColor: "#e6efff",
+//                     borderLeft: "6px solid #005b96",
+//                     borderRadius: "6px",
+//                     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.05)",
+//                     transition: "all 0.3s ease",
+//                     cursor: "pointer",
+//                     fontWeight: 500,
+//                     "&:hover": {
+//                       backgroundColor: "#cce0ff",
+//                       transform: "translateY(-3px)",
+//                       color: "#002244",
+//                     },
+//                   }}
+//                   onClick={() =>
+//                     navigate(
+//                       `/book-details/${book.Bookname.replace(/\s+/g, "-").toLowerCase()}`
+//                     )
+//                   }
+//                 >
+//                   <Box>
+//                     <Typography variant="h6" sx={{ color: "#003366" }}>
+//                       {book.Bookname}
+//                     </Typography>
+//                     <Typography variant="body2" sx={{ color: "#333" }}>
+//                       Author: {book.Author}
+//                     </Typography>
+//                     {/* Change here to display the entered Book ID instead of _id */}
+//                     <Typography variant="body2" sx={{ color: "#333" }}>
+//                       Book ID: {book.Bookid} {/* Display the Bookid field here */}
+//                     </Typography>
+//                     {book.RackNumber ? (
+//                       <Typography variant="body2" sx={{ color: "#333" }}>
+//                         Rack Number: {book.RackNumber} {/* Display RackNumber */}
+//                       </Typography>
+//                     ) : (
+//                       <Typography variant="body2" sx={{ color: "#999" }}>
+//                         Rack Number: Not available
+//                       </Typography>
+//                     )}
+//                   </Box>
+//                 </ListItem>
+//               );
+//             })
+//           ) : (
+//             <ListItem>
+//               <Typography
+//                 variant="body1"
+//                 align="center"
+//                 sx={{ width: "100%", color: "#555" }}
+//               >
+//                 No storybooks found.
+//               </Typography>
+//             </ListItem>
+//           )}
+//         </List>
+//       </Box>
+//     </div>
+//   );
+// };
+
+// export default StoryBookList;
+
+
+
+
+import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Typography,
+  List,
+  ListItem,
+  Paper,
+  TextField,
+  Chip,
+  Container,
+  Avatar,
+  IconButton,
+  InputAdornment,
+  Badge,
+  useTheme,
+  useMediaQuery
+} from "@mui/material";
+import Navbar from "./Navbar";
+import { AllDataContext } from "../context/AllDataContext";
+import {
+  Search,
+  MenuBook,
+  Person,
+  Numbers,
+  LocationOn,
+  Category,
+  FilterList,
+  Sort
+} from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+
+const BookCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  marginBottom: theme.spacing(2),
+  backgroundColor: theme.palette.background.paper,
+  borderLeft: `4px solid ${theme.palette.secondary.main}`,
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[2],
+  transition: theme.transitions.create(['transform', 'box-shadow'], {
+    duration: theme.transitions.duration.standard,
+  }),
+  '&:hover': {
+    transform: 'translateY(-3px)',
+    boxShadow: theme.shadows[6],
+    backgroundColor: theme.palette.action.hover,
+    cursor: 'pointer'
+  },
+}));
+
+const StoryBookList = () => {
+  const { storyBooks } = useContext(AllDataContext);
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("title");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const filteredBooks = storyBooks
+    ?.filter(
+      (book) =>
+        book.Bookname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        book.Author.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      const aMatches =
+        a.Bookname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        a.Author.toLowerCase().includes(searchQuery.toLowerCase());
+      const bMatches =
+        b.Bookname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        b.Author.toLowerCase().includes(searchQuery.toLowerCase());
+
+      if (aMatches && !bMatches) return -1;
+      if (!aMatches && bMatches) return 1;
+      
+      if (sortBy === "title") {
+        return a.Bookname.localeCompare(b.Bookname);
+      } else if (sortBy === "author") {
+        return a.Author.localeCompare(b.Author);
+      }
+      return 0;
+    }) || [];
+
+  return (
+    <Box sx={{ 
+      backgroundColor: theme.palette.grey[50], 
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <Navbar />
+      
+      <Container maxWidth="md" sx={{ 
+        flex: 1,
+        py: { xs: 3, md: 4 },
+        px: { xs: 2, sm: 3 }
+      }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          alignItems: 'center',
+          mb: 4
+        }}>
+          <Typography
+            variant="h3"
+            component="h1"
+            sx={{
+              color: theme.palette.secondary.dark,
+              fontWeight: 700,
+              mb: 1,
+              mt: { xs: 72, md: 13 },
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            <Category fontSize="large" />
+            Non-Academic Books
+          </Typography>
+          
+          <Badge 
+            badgeContent={filteredBooks.length} 
+            color="secondary"
+            sx={{ mb: 3 }}
+          >
+            <Chip
+              icon={<MenuBook />}
+              label="Non-academic Books Collection"
+              variant="outlined"
+              color="secondary"
+              sx={{ 
+                fontSize: isMobile ? '0.875rem' : '1rem',
+                padding: isMobile ? '4px 8px' : '6px 12px'
+              }}
+            />
+          </Badge>
+        </Box>
+
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 2, 
+          mb: 3,
+          flexDirection: isMobile ? 'column' : 'row'
+        }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Search by title or author"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search color="action" />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              backgroundColor: 'background.paper',
+              flexGrow: 1
+            }}
+          />
+          
+          <Box sx={{ 
+            display: 'flex',
+            gap: 1,
+            width: isMobile ? '100%' : 'auto'
+          }}>
+            <IconButton
+              onClick={() => setSortBy(sortBy === "title" ? "author" : "title")}
+              sx={{
+                border: `1px solid ${theme.palette.divider}`,
+                borderRadius: 1
+              }}
+              aria-label={sortBy === "title" ? "Sort by author" : "Sort by title"}
+            >
+              {sortBy === "title" ? <Person /> : <MenuBook />}
+            </IconButton>
+            
+            <IconButton
+              sx={{
+                border: `1px solid ${theme.palette.divider}`,
+                borderRadius: 1
+              }}
+              aria-label="Filter options"
+            >
+              <FilterList />
+            </IconButton>
+          </Box>
+        </Box>
+
+        {filteredBooks.length > 0 ? (
+          <List sx={{ padding: 0 }}>
+            {filteredBooks.map((book) => (
+              <BookCard 
+                key={book._id}
+                elevation={2}
+                onClick={() =>
+                  navigate(
+                    `/book-details/${book.Bookname.replace(/\s+/g, "-").toLowerCase()}`
+                  )
+                }
+              >
+                <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <Avatar 
+                    variant="rounded"
+                    sx={{ 
+                      bgcolor: theme.palette.secondary.light,
+                      color: theme.palette.secondary.dark,
+                      mr: 2,
+                      width: 56, 
+                      height: 56 
+                    }}
+                  >
+                    <MenuBook />
+                  </Avatar>
+                  
+                  <Box sx={{ flex: 1 }}>
+                    <Typography 
+                      variant="h6" 
+                      component="div"
+                      sx={{ 
+                        fontWeight: 600,
+                        mb: 0.5,
+                        color: theme.palette.text.primary
+                      }}
+                    >
+                      {book.Bookname}
+                    </Typography>
+                    
+                    <Box sx={{ 
+                      display: 'flex', 
+                      flexWrap: 'wrap',
+                      gap: 1,
+                      mb: 1.5
+                    }}>
+                      <Chip
+                        icon={<Person fontSize="small" />}
+                        label={book.Author}
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                      />
+                      <Chip
+                        icon={<Numbers fontSize="small" />}
+                        label={`ID: ${book.Bookid}`}
+                        size="small"
+                        variant="outlined"
+                      />
+                      {book.RackNumber && (
+                        <Chip
+                          icon={<LocationOn fontSize="small" />}
+                          label={`Rack: ${book.RackNumber}`}
+                          size="small"
+                          variant="outlined"
+                          color="secondary"
+                        />
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              </BookCard>
+            ))}
+          </List>
+        ) : (
+          <Paper sx={{ 
+            p: 4, 
+            textAlign: 'center',
+            backgroundColor: 'background.paper'
+          }}>
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+              No books found
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {searchQuery ? 
+                "Try a different search term" : 
+                "No story books available in the collection"}
+            </Typography>
+          </Paper>
+        )}
+      </Container>
+    </Box>
+  );
+};
+
+export default StoryBookList;
